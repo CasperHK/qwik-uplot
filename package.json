@@ -1,0 +1,55 @@
+{
+  "name": "qwik-uplot",
+  "version": "0.0.0",
+  "description": "Responsive Qwik wrapper for uPlot.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CasperHK/qwik-uplot.git"
+  },
+  "homepage": "https://github.com/CasperHK/qwik-uplot#readme",
+  "bugs": {
+    "url": "https://github.com/CasperHK/qwik-uplot/issues"
+  },
+  "keywords": [
+    "qwik",
+    "uplot",
+    "charts",
+    "timeseries",
+    "canvas"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rslib",
+    "dev": "rslib --watch"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "peerDependencies": {
+    "@builder.io/qwik": "^1.15.0"
+  },
+  "dependencies": {
+    "uplot": "^1.6.32"
+  },
+  "devDependencies": {
+    "@builder.io/qwik": "^1.15.0",
+    "@rslib/core": "^0.23.2",
+    "typescript": "^6.0.3"
+  }
+}

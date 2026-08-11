@@ -21,13 +21,19 @@ The fastest time-series charting library (**uPlot**) meets the fastest web frame
 
 ## 📦 Installation
 
-Ensure you have both `uplot` and `@builder.io/qwik` in your project dependencies.
+Install the package and import the bundled `uPlot` stylesheet in your Qwik app.
 
 ```bash
 npm install qwik-uplot uplot
 # or via yarn / pnpm / bun
 pnpm add qwik-uplot uplot
 ```
+
+```tsx
+import 'uplot/dist/uPlot.min.css';
+```
+
+`@builder.io/qwik` is a peer dependency and should already exist in the consuming app.
 
 ---
 
@@ -36,31 +42,30 @@ pnpm add qwik-uplot uplot
 Here is how you can render a responsive, high-performance time-series chart inside any Qwik component:
 
 ```tsx
-import { component\$, useStore } from '@builder.io/qwik';
+import { component$, useSignal } from '@builder.io/qwik';
 import { QwikUPlot } from 'qwik-uplot';
+import type uPlot from 'uplot';
 
-export default component\$(() => {
-  // 1. Maintain your time-series data streams reactively via stores or signals
-  const state = useStore({
-    seriesData: [, // Unix Timestamps (X-Axis),         // Series 1 Metrics (Y-Axis)
-    ] as any,
-  });
+const timestamps = [1716710400, 1716714000, 1716717600, 1716721200];
+const cpuUsage = [38, 42, 35, 47];
 
-  // 2. Configure uPlot Options (Leave width out, it auto-resizes!)
-  const chartOptions = {
-    title: "Server CPU Performance",
+export default component$(() => {
+  const seriesData = useSignal<uPlot.AlignedData>([timestamps, cpuUsage]);
+
+  const chartOptions: Omit<uPlot.Options, 'width' | 'height'> = {
+    title: 'Server CPU Performance',
     series: [
-      {}, // Baseline X-axis config
+      {},
       {
-        label: "CPU Usage (%)",
-        stroke: "#3b82f6", // Beautiful blue line
+        label: 'CPU Usage (%)',
+        stroke: '#3b82f6',
         width: 2,
       },
     ],
     axes: [
       {},
       {
-        values: (self: any, splits: number[]) => splits.map(v => v + "%"),
+        values: (_self, splits) => splits.map((value) => `${value}%`),
       },
     ],
   };
@@ -68,13 +73,12 @@ export default component\$(() => {
   return (
     <div style={{ padding: '24px', maxWidth: '1000px', margin: '0 auto' }}>
       <h2>System Dashboard</h2>
-      
-      {/* Dynamic, auto-resizable container */}
+
       <div style={{ width: '100%', background: '#fff', border: '1px solid #ddd' }}>
-        <QwikUPlot 
-          options={chartOptions} 
-          data={state.seriesData} 
-          height={400} 
+        <QwikUPlot
+          options={chartOptions}
+          data={seriesData.value}
+          height={400}
         />
       </div>
     </div>
@@ -94,6 +98,8 @@ The `<QwikUPlot />` component accepts the following declarative props:
 | `data` | `uPlot.AlignedData` | **Yes** | — | Multidimensional array matching uPlot's `[ [x-ticks], [series-1], ... ]` layout. |
 | `height` | `number` | No | `400` | Fixed pixel height of the generated canvas chart. |
 
+All standard `<div>` props are forwarded to the chart container, so `class`, `style`, `id`, and similar attributes work as expected.
+
 ---
 
 ## 🛠️ Performance Optimization Tips
@@ -101,10 +107,9 @@ The `<QwikUPlot />` component accepts the following declarative props:
 When feeding streaming data (e.g., from WebSockets or `setInterval`), make sure you are mutating your Qwik state optimally. Because `qwik-uplot` tracks your `data` prop reactively via Qwik's reactive engine, modifying the top-level array layout will trigger lightning-fast canvas rerenders without remounting the DOM component tree.
 
 ```tsx
-// Correct streaming update approach inside a hook/task:
-state.seriesData = [
-  [...state.seriesData[0], newTimestamp],
-  [...state.seriesData[1], newMetricValue]
+seriesData.value = [
+  [...seriesData.value[0], newTimestamp],
+  [...seriesData.value[1], newMetricValue],
 ];
 ```
 
